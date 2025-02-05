@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 public interface VideoRepository extends JpaRepository<Video, String> {
-    Optional<Video> findByTitle(String title);
+    List<Video> findByTitle(String title);
     List<Video> findByCourse(Course course);
 }

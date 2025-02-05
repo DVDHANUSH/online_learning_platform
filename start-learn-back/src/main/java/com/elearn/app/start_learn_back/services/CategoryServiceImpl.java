@@ -1,25 +1,34 @@
 package com.elearn.app.start_learn_back.services;
 import com.elearn.app.start_learn_back.Exceptions.ResourceNotPresentException;
 import com.elearn.app.start_learn_back.Repositories.CategoryRepository;
+import com.elearn.app.start_learn_back.Repositories.CourseRepository;
 import com.elearn.app.start_learn_back.dtos.CategoryDto;
+import com.elearn.app.start_learn_back.dtos.CourseDto;
 import com.elearn.app.start_learn_back.dtos.CustomPageResponse;
 import com.elearn.app.start_learn_back.entites.Category;
+import com.elearn.app.start_learn_back.entites.Course;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
     private CategoryRepository categoryRepository;
     private ModelMapper modelMapper;
-    public CategoryServiceImpl(CategoryRepository repository, ModelMapper modelMapper){
+
+    private CourseRepository courseRepository;
+    public CategoryServiceImpl(CategoryRepository categoryRepository, ModelMapper modelMapper, CourseRepository courseRepository){
         this.modelMapper = modelMapper;
-        this.categoryRepository = repository;
+        this.categoryRepository = categoryRepository;
+        this.courseRepository = courseRepository;
     }
     @Override
     public CategoryDto insert(CategoryDto categoryDto) {
@@ -64,9 +73,35 @@ public class CategoryServiceImpl implements CategoryService {
         Category savedCategory = categoryRepository.save(category);
         return modelMapper.map(savedCategory, CategoryDto.class);
     }
+
+
+
+
+
     @Override
     public CategoryDto get(String categoryId) {
       Category category =  categoryRepository.findById(categoryId).orElseThrow(()-> new ResourceNotPresentException("Category Not Present"));
         return modelMapper.map(category, CategoryDto.class);
+    }
+    public void addCourseToCategory(String catId, String courseid){
+       // get category
+       Category category = categoryRepository.findById(catId).orElseThrow(()-> new ResourceNotPresentException("Category not present"));
+        // get course
+       Course course = courseRepository.findById(courseid).orElseThrow(()-> new ResourceNotPresentException("Course not present"));
+
+       // course ke ander cat list mein cat add gohi
+        // cat ke ander course hai
+       category.addCourse(course);
+       // its children get saved to as we have cascade
+       categoryRepository.save(category);
+       System.out.println("Category relationship updated");
+    }
+    @Override
+    @Transactional
+    public List<CourseDto> getCourseOfCat(String categoryId) {
+        Category category = categoryRepository.findById(categoryId).orElseThrow(()-> new ResourceNotPresentException("Category not present"));
+        System.out.println("the category is present");
+        List<Course> courses  = category.getCourses();
+        return courses.stream().map(course -> modelMapper.map(course, CourseDto.class)).collect(Collectors.toList());
     }
 }

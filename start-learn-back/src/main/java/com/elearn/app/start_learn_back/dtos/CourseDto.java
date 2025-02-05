@@ -1,11 +1,5 @@
 package com.elearn.app.start_learn_back.dtos;
-import com.elearn.app.start_learn_back.entites.Category;
-import com.elearn.app.start_learn_back.entites.Video;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,7 +11,7 @@ public class CourseDto {
     private String shortDesc;
     private String longDesc;
     private double price;
-    private boolean live = false;
+    private Boolean live;
     private double disc;
     private Date createdDate;
     private String banner;

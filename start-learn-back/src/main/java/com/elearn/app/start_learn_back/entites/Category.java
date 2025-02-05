@@ -1,4 +1,5 @@
 package com.elearn.app.start_learn_back.entites;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,8 +22,18 @@ public class Category {
     @Column(name = "description")
     private String desc;
     private Date addedDate;
-//    @OneToMany(mappedBy = "category")
+    //    @OneToMany(mappedBy = "category")
 //    private List<Course> courses = new ArrayList<>();
-@ManyToMany(mappedBy = "categoryList")
-private List<Course> courses = new ArrayList<>();
+    @ManyToMany(mappedBy = "categoryList", cascade = CascadeType.ALL)
+    private List<Course> courses = new ArrayList<>();
+
+    public void addCourse(Course course) {
+        courses.add(course);
+        course.getCategoryList().add(this);
+    }
+    public void removeCourse(Course course){
+        courses.remove(course);
+
+        course.getCategoryList().remove(this);
+    }
 }

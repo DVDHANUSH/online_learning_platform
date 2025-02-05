@@ -1,10 +1,5 @@
 package com.elearn.app.start_learn_back.entites;
-
 import jakarta.persistence.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Table(name = "Video")
 public class Video {

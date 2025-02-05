@@ -1,16 +1,18 @@
 package com.elearn.app.start_learn_back.Controllers;
 import com.elearn.app.start_learn_back.config.AppConstants;
 import com.elearn.app.start_learn_back.dtos.CategoryDto;
+import com.elearn.app.start_learn_back.dtos.CourseDto;
 import com.elearn.app.start_learn_back.dtos.CustomMessage;
 import com.elearn.app.start_learn_back.dtos.CustomPageResponse;
 import com.elearn.app.start_learn_back.services.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
+
 import org.springframework.web.bind.annotation.*;
 
-import javax.naming.Binding;
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -62,5 +64,23 @@ public class CategoryController {
     public CategoryDto update(@PathVariable String categoryId, @RequestBody
     CategoryDto categoryDto) {
         return categoryService.update(categoryDto, categoryId);
+    }
+
+    @PostMapping("/{categoryId}/courses/{courseId}")
+    public ResponseEntity<CustomMessage> addCourseToCategory(
+            @PathVariable String categoryId,
+            @PathVariable String courseId
+    ){
+        categoryService.addCourseToCategory(categoryId, courseId);
+        CustomMessage customMessage = new CustomMessage();
+        customMessage.setMessage("Category Updated");
+        customMessage.setSuccess(true);
+        return ResponseEntity.ok(customMessage);
+    }
+
+    @GetMapping("/{categoryId}/courses")
+    public ResponseEntity<List<CourseDto>> getCourseOfCategory(@PathVariable String categoryId){
+        System.out.println("here at the cc");
+        return ResponseEntity.ok(categoryService.getCourseOfCat(categoryId));
     }
 }
