@@ -1,13 +1,22 @@
 package com.elearn.app.start_learn_back.services;
+import com.elearn.app.start_learn_back.Exceptions.ResourceNotPresentException;
 import com.elearn.app.start_learn_back.Repositories.CourseRepository;
+import com.elearn.app.start_learn_back.config.AppConstants;
 import com.elearn.app.start_learn_back.dtos.CourseDto;
+import com.elearn.app.start_learn_back.dtos.ResourceContentType;
 import com.elearn.app.start_learn_back.entites.Course;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -19,10 +28,12 @@ public class CourseServiceImpl implements CourseService{
     private ModelMapper modelMapper;
 
     private CategoryService categoryService;
-    public CourseServiceImpl(CourseRepository courseRepository, ModelMapper modelMapper, CategoryService categoryService) {
+    private FileService fileService;
+    public CourseServiceImpl(CourseRepository courseRepository, ModelMapper modelMapper, CategoryService categoryService, FileService fileService) {
         this.courseRepository = courseRepository;
         this.modelMapper = modelMapper;
         this.categoryService = categoryService;
+        this.fileService = fileService;
     }
     @Override
     public CourseDto createCourse(CourseDto courseDto) {
@@ -116,6 +127,30 @@ public CourseDto updateCourse(String id, CourseDto courseDto) {
     public List<CourseDto> searchCourses(String keyword) {
         List<Course> courses = courseRepository.findByTitleContainingIgnoreCaseOrShortDescContainingIgnoreCase(keyword, keyword);
         return courses.stream().map(course -> modelMapper.map(course, CourseDto.class)).collect(Collectors.toList());
+    }
+    @Override
+    public CourseDto saveBanner(MultipartFile file, String courseId) throws IOException {
+      Course course = courseRepository.findById(courseId).orElseThrow(()-> new ResourceNotPresentException());
+      String filePath = fileService.save(file, AppConstants.COURSE_BANNER_UPLOAD_DIR, file.getOriginalFilename());
+       // String relativeFilePath = filePath.substring(filePath.indexOf(AppConstants.COURSE_BANNER_UPLOAD_DIR));
+        course.setBanner(filePath);
+        System.out.println("Full File Path: " + filePath);
+        System.out.println("Expected Directory: " + AppConstants.COURSE_BANNER_UPLOAD_DIR);
+        course.setBannerContentType(file.getContentType());
+      return modelMapper.map(courseRepository.save(course), CourseDto.class);
+    }
+
+    @Override
+    public ResourceContentType getCourseBannerById(String courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(()-> new ResourceNotPresentException());
+        String bannerPath = course.getBanner();
+        Path path = Paths.get(bannerPath);
+        Resource resource = new FileSystemResource(path);
+        ResourceContentType resourceContentType = new ResourceContentType();
+        resourceContentType.setResource(resource);
+
+        resourceContentType.setContentType(course.getBannerContentType());
+        return resourceContentType;
     }
 
     // to convert an entity to dto, we have to this

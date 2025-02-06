@@ -25,6 +25,7 @@ public class Course {
     private Boolean live = false;
     private double disc;
     private Date createdDate;
+    // is a image field
     private String banner;
     private  String bannerContentType;
     @OneToMany(mappedBy = "course")
