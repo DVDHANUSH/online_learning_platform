@@ -5,6 +5,11 @@ import com.elearn.app.start_learn_back.dtos.CustomMessage;
 import com.elearn.app.start_learn_back.dtos.ResourceContentType;
 import com.elearn.app.start_learn_back.services.CourseService;
 import com.elearn.app.start_learn_back.services.FileService;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -22,6 +27,8 @@ import java.nio.file.Paths;
 import java.util.List;
 @RestController
 @RequestMapping("/api/v1/courses")
+//@CrossOrigin("http://localhost:4200")
+@CrossOrigin("*")
 public class CourseController {
    // @Autowired
     private CourseService courseService;
@@ -40,7 +47,9 @@ public class CourseController {
     @PutMapping("/{id}")
     public ResponseEntity<CourseDto> updateCourse(@PathVariable String id, @RequestBody CourseDto courseDto) {
         return ResponseEntity.ok(courseService.updateCourse(id, courseDto));
+
     }
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
     public ResponseEntity<CourseDto>  getCourseById(@PathVariable String id){
         return ResponseEntity.status(HttpStatus.CREATED).body(courseService.getCourseById(id));
@@ -73,57 +82,46 @@ public class CourseController {
 
     // going to create one banner [image upload api]
     @PostMapping("/{courseId}/banner")
-    public  ResponseEntity<CourseDto> uploadBanner(
+    public  ResponseEntity<?> uploadBanner(
             @PathVariable String courseId,
             @RequestParam("banner") MultipartFile banner
             ) throws IOException {
         System.out.println(banner.getOriginalFilename());
         System.out.println(banner.getName());
         System.out.println(banner.getSize());
-        System.out.println(banner.getContentType());
-//        fileService.save(banner, AppConstants.COURSE_BANNER_UPLOAD_DIR, banner.getOriginalFilename());
+        String contentType = banner.getContentType();
+        if(contentType == null){
+            contentType = "image/png";
+        }
 
+        else if(contentType.equalsIgnoreCase("image/png")|| contentType.equalsIgnoreCase("image/jpeg")){
 
+        }
+        else{
+            CustomMessage customMessage = new CustomMessage();
+            customMessage.setSuccess(false);
+            customMessage.setMessage("Invalid file format");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(customMessage);
+        }
+
+        //fileService.save(banner, AppConstants.COURSE_BANNER_UPLOAD_DIR, banner.getOriginalFilename());
        CourseDto courseDto = courseService.saveBanner(banner, courseId);
        return ResponseEntity.ok(courseDto);
     }
-    // serve banner
-
-
+    // get banner
     @GetMapping("/{courseId}/banners")
     public  ResponseEntity<Resource> serveBanner(
-            @PathVariable String courseId
-    ){
+            @PathVariable String courseId,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            HttpSession session,
+            ServletContext servletContext,
+            @RequestHeader("Content-Type") String contentType
+    )
+    {
         ResourceContentType resourceContentType = courseService.getCourseBannerById(courseId);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(resourceContentType.getContentType()))
                 .body(resourceContentType.getResource());
     }
-//@GetMapping("/{courseId}/banners")
-//public ResponseEntity<Resource> serveBanner(@PathVariable String courseId) {
-//    try {
-//        // Get the banner path dynamically (you may fetch this path from the database or courseService)
-//        String bannerPath = "uploads/courses/banners/Image.jpg"; // Example hardcoded path
-//        Path filePath = Paths.get(bannerPath).toAbsolutePath();
-//
-//        // Load the file as a resource
-//        Resource resource = new org.springframework.core.io.UrlResource(filePath.toUri());
-//
-//        // Check if the resource exists and is readable
-//        if (!resource.exists() || !resource.isReadable()) {
-//            throw new RuntimeException("File not found or is not readable: " + bannerPath);
-//        }
-//
-//        // Determine the content type
-//        String contentType = Files.probeContentType(filePath);
-//
-//        return ResponseEntity.ok()
-//                .contentType(MediaType.parseMediaType(contentType != null ? contentType : "application/octet-stream"))
-//                .body(resource);
-//
-//    } catch (Exception e) {
-//        e.printStackTrace();
-//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//    }
-//}
 }
