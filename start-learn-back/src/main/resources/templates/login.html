@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #74ebd5, #9face6);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            text-align: center;
+        }
+
+        .form-container h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-container label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #555;
+            text-align: left;
+        }
+
+        .form-container input {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-container input:focus {
+            border-color: #74ebd5;
+            outline: none;
+            box-shadow: 0 0 5px rgba(116, 235, 213, 0.5);
+        }
+
+        .form-container button {
+            padding: 0.8rem 2rem;
+            background-color: #74ebd5;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 1rem;
+        }
+
+        .form-container button:hover {
+            background-color: #62d5c7;
+        }
+
+        .form-container .secondary-button {
+            margin-top: 1rem;
+            padding: 0.8rem 2rem;
+            background-color: #9face6;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .form-container .secondary-button:hover {
+            background-color: #8b8bc7;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h1>Login</h1>
+    <form th:action="@{'/client-login-process'}" method="POST">
+        <div class = "input-group">
+            <input type = "text" id="username" name="username" placeholder="Username" requried>
+        </div>
+        <div class = "input-group">
+            <input type = "text" id="password" name="userpassword" placeholder="Password" requried>
+        </div>
+        <input type="submit" value="Submit">
+        <button type="button" class="secondary-button">Cancel</button>
+    </form>
+</div>
+</body>
+</html>

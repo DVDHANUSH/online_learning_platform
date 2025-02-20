@@ -18,12 +18,11 @@ public class Role {
 
     @Id
     private String roleId;
-
     private String roleName;
-
     @ManyToMany
     @JoinTable(name = "roles_users")
     private Set<User> users = new HashSet<>();
+// here by default "FetchType" is LAZY
 
 
 }

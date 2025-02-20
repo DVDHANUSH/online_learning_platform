@@ -1,14 +1,10 @@
 package com.elearn.app.start_learn_back.entites;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import java.util.*;
+import lombok.*;
 
+import java.util.*;
 @Entity
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
@@ -30,7 +26,7 @@ public class User {
 
     private boolean active;
 
-    private boolean emailVarified;
+    private boolean emailVerified;
 
     private boolean smsVerified;
 
@@ -42,8 +38,18 @@ public class User {
 
     @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
+   // Fetchtype is ByDefault "LAZY" for "@ManyToMany" and "@OneToMany"
 
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Order> orders = new ArrayList<>();
+    public void assignRole(Role role){
+        this.roles.add(role);
+        role.getUsers().add(this);
+        // "this" -> current class object ("User user = new User()")
+        // here the "user" is "this"
+    }
+    public void removeRole(Role role){
+        this.roles.remove(role);
+        role.getUsers().remove(this);
+    }
 }

@@ -30,19 +30,16 @@ public class Order {
     private LocalDate createdDate;
 
     @ManyToOne
-    @JoinTable(name = "course_id")
+    @JoinColumn(name = "course_id", nullable = false) // Ensure FK is created
     private Course course;
 
-    @Column(nullable = false)
-    private String userId;
+//    @Column(nullable = false)
+//    private String userId;
 
     @ManyToOne
-    @JoinTable(name = "user_id")
+    @JoinColumn(name = "user_id")
     private User user;
-
-
     @Lob
-    @Column(name = "address",columnDefinition = "TEXT")
-    private  String address;
-
+    @Column(name = "address", columnDefinition = "TEXT")
+    private String address;
 }
