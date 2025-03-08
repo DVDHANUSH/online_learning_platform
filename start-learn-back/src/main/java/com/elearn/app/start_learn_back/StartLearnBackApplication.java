@@ -1,5 +1,4 @@
 package com.elearn.app.start_learn_back;
-
 import com.elearn.app.start_learn_back.Repositories.RoleRepo;
 import com.elearn.app.start_learn_back.Repositories.UserRepository;
 import com.elearn.app.start_learn_back.config.AppConstants;
@@ -10,7 +9,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,9 +47,8 @@ public class StartLearnBackApplication implements CommandLineRunner {
 		);
 
 		roleRepo.findByRoleName(AppConstants.ROLE_GUEST).ifPresentOrElse(
-                role -> {
-                    System.out.println(role.getRoleName() + " already in database ");
-                },
+                role ->
+                    System.out.println(role.getRoleName() + " already in database "),
                 () -> {
                     System.out.println("saving r2");
                     roleRepo.save(role2);
@@ -70,6 +67,7 @@ public class StartLearnBackApplication implements CommandLineRunner {
 //        user.setEmailVerified(false);
 //        user.setSmsVerified(false);
 //        userRepository.save(user);
-//        System.out.println("Created user");
+
+        System.out.println("Created user");
     }
 }

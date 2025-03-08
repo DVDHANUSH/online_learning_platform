@@ -7,13 +7,11 @@ import java.util.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
 
+public class User {
     @Id
     private String userId;
-
     private String name;
-
     // username=email
     @Column(unique = true)
     private String email;
