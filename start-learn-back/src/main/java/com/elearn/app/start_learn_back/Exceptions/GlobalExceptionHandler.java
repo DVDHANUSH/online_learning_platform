@@ -2,6 +2,7 @@ package com.elearn.app.start_learn_back.Exceptions;
 import com.elearn.app.start_learn_back.dtos.CustomMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,5 +31,15 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<CustomMessage> handleAuthDeniedException(AuthorizationDeniedException ex) {
+        System.out.println("I am inside the exception handler");
+        CustomMessage customMessage = new CustomMessage();
+        customMessage.setSuccess(false);
+        customMessage.setMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(customMessage);
     }
 }

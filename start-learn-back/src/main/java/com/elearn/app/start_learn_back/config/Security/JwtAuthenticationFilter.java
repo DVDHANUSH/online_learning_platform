@@ -18,6 +18,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+// if any hacker wants to access our apis directly, hence we are guarding it with this filter
+// okayy now, wat does this "JwtAuthenticationFilter" do, simple it checks whether the request has the "jwtToken" and is it valid enough to send the response.
+// if it is authenticated, we are good to send the request to next level.
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
    @Autowired
@@ -52,9 +55,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                   SecurityContextHolder.getContext().setAuthentication(authenticationToken);
               }
            }
-       }else{
-           throw new InsufficientAuthenticationException("Invalid Bearer Token");
-
+//       }else{
+//           throw new InsufficientAuthenticationException("Invalid Bearer Token");
+//
        }
        filterChain.doFilter(request, response);
     }

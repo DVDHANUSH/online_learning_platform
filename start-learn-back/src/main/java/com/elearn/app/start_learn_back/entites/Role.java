@@ -15,14 +15,15 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Role {
-
     @Id
     private String roleId;
     private String roleName;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "roles_users")
     private Set<User> users = new HashSet<>();
+    public Role(String roleId, String roleName) {
+        this.roleId = roleId;
+        this.roleName = roleName;
+    }
 // here by default "FetchType" is LAZY
-
-
 }

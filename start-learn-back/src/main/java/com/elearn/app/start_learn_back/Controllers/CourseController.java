@@ -5,6 +5,10 @@ import com.elearn.app.start_learn_back.dtos.CustomMessage;
 import com.elearn.app.start_learn_back.dtos.ResourceContentType;
 import com.elearn.app.start_learn_back.services.CourseService;
 import com.elearn.app.start_learn_back.services.FileService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +31,7 @@ import java.nio.file.Paths;
 import java.util.List;
 @RestController
 @RequestMapping("/api/v1/courses")
+//@SecurityRequirement(name = "jwtScheme")
 //@CrossOrigin("http://localhost:4200")
 @CrossOrigin("*")
 public class CourseController {
@@ -39,19 +44,23 @@ public class CourseController {
         this.courseService = courseService;
     }
 
+    @Operation(summary = "Create new Course", description = "Pass new course information to create new course", tags = {"course operation"})
+    @ApiResponse(responseCode = "201", description = "Course Created Successfully")
+    @ApiResponse(responseCode = "501", description = "Internal Server Error, course not created")
     @PostMapping
     public ResponseEntity<CourseDto> createCourse(@RequestBody CourseDto courseDto) {
         return ResponseEntity.ok(courseService.createCourse(courseDto));
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a Course", description = "Pass Updated course information to Update course", tags = {"course operation"})
     public ResponseEntity<CourseDto> updateCourse(@PathVariable String id, @RequestBody CourseDto courseDto) {
         return ResponseEntity.ok(courseService.updateCourse(id, courseDto));
 
     }
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
-    public ResponseEntity<CourseDto>  getCourseById(@PathVariable String id){
+    public ResponseEntity<CourseDto>  getCourseById(@Parameter(description = "Course Id which is to update") @PathVariable String id){
         return ResponseEntity.status(HttpStatus.CREATED).body(courseService.getCourseById(id));
     }
 
@@ -103,7 +112,6 @@ public class CourseController {
             customMessage.setMessage("Invalid file format");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(customMessage);
         }
-
         //fileService.save(banner, AppConstants.COURSE_BANNER_UPLOAD_DIR, banner.getOriginalFilename());
        CourseDto courseDto = courseService.saveBanner(banner, courseId);
        return ResponseEntity.ok(courseDto);
