@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/category_service/category_service.iml" filepath="$PROJECT_DIR$/category_service/category_service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../config-server/config-server/config-server.iml" filepath="$PROJECT_DIR$/../config-server/config-server/config-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../course_service/course_service/course_service.iml" filepath="$PROJECT_DIR$/../course_service/course_service/course_service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../discovery-service/discovery-service/discovery-service.iml" filepath="$PROJECT_DIR$/../discovery-service/discovery-service/discovery-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../enrollment-service/enrollment-service/enrollment-service.iml" filepath="$PROJECT_DIR$/../enrollment-service/enrollment-service/enrollment-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../gateway-service/gateway-service/gateway-service.iml" filepath="$PROJECT_DIR$/../gateway-service/gateway-service/gateway-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../notification-service/notification-service/notification-service.iml" filepath="$PROJECT_DIR$/../notification-service/notification-service/notification-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../order-service/order-service/order-service.iml" filepath="$PROJECT_DIR$/../order-service/order-service/order-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../video-service/video-service/video_service.iml" filepath="$PROJECT_DIR$/../video-service/video-service/video_service.iml" />
+    </modules>
+  </component>
+</project>

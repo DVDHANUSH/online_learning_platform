@@ -1,0 +1,57 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://localhost:9190/realms/mind-up/protocol/openid-connect/certs"
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+    circuitbreaker:
+      resilience4j:
+        enabled: true
+  data:
+    redis:
+       host: localhost
+       port: 6379
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 2
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s  # use 's' for seconds, not raw numbers
+    instances:
+      category-breaker:
+        baseConfig: default
+server:
+  port: 9090
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+  endpoint:
+    gateway:
+      enabled: true
+info:
+  app:
+    name: gateway-service
+    description: "This is api gateway"
+    version: "1.0"
