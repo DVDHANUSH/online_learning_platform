@@ -3,7 +3,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: "http://localhost:9190/realms/mind-up/protocol/openid-connect/certs"
+          jwk-set-uri: "http://localhost:9190/realms/micro-dev/protocol/openid-connect/certs"
   application:
     name: gateway-service
   cloud:
