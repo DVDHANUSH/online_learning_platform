@@ -1,6 +1,7 @@
 package com.service.category.services;
 import com.service.category.dto.CategoryDto;
 import com.service.category.dto.CustomPageResponse;
+import com.service.category.dto.SearchResponse;
 
 import java.util.List;
 
@@ -11,4 +12,5 @@ public interface CategoryService {
     void delete (String categoryId);
     CategoryDto update(CategoryDto categoryDto, String categoryId);
     CategoryDto get(String categoryId);
+    SearchResponse search(String keyword);
 }

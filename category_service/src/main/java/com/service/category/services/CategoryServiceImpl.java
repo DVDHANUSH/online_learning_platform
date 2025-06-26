@@ -3,6 +3,7 @@ package com.service.category.services;
 import com.service.category.Exceptions.ResourceNotPresentException;
 import com.service.category.dto.CategoryDto;
 import com.service.category.dto.CustomPageResponse;
+import com.service.category.dto.SearchResponse;
 import com.service.category.entities.Category;
 import com.service.category.repositories.CategoryRepository;
 import org.modelmapper.ModelMapper;
@@ -11,9 +12,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Service
 public class CategoryServiceImpl implements CategoryService{
     private CategoryRepository categoryRepository;
@@ -53,7 +57,6 @@ public class CategoryServiceImpl implements CategoryService{
         customPageResponse.setPageSize(categoryPage.getSize());
         return customPageResponse;
     }
-
     @Override
     public void  delete(String categoryId) {
         Category category = categoryRepository.findById(categoryId).orElseThrow(()-> new ResourceNotPresentException("Category Not Present"));
@@ -64,6 +67,7 @@ public class CategoryServiceImpl implements CategoryService{
         Category category = categoryRepository.findById(categoryId).orElseThrow(()-> new ResourceNotPresentException("Category not present"));
         category.setTitle(categoryDto.getTitle());
         category.setDesc(categoryDto.getDesc());
+        category.setBannerImageUrl(categoryDto.getBannerImageUrl());
         Category savedCategory = categoryRepository.save(category);
         return modelMapper.map(savedCategory, CategoryDto.class);
     }
@@ -71,5 +75,22 @@ public class CategoryServiceImpl implements CategoryService{
     public CategoryDto get(String categoryId) {
         Category category =  categoryRepository.findById(categoryId).orElseThrow(()-> new ResourceNotPresentException("Category Not Present"));
         return modelMapper.map(category, CategoryDto.class);
+    }
+
+    @Override
+    public SearchResponse search(String keyword) {
+        SearchResponse searchResponse = new SearchResponse();
+        if(keyword.isBlank()||keyword.isEmpty()){
+//            return new ArrayList<>();
+             searchResponse.setMessage("Enter a valid search string");
+             return searchResponse;
+        }
+        List<CategoryDto> categoryDtos = this.categoryRepository.findByTitleContainingIgnoreCaseOrDescContainingIgnoreCase(keyword, keyword).stream().map(cat -> modelMapper.map(cat, CategoryDto.class)).collect(Collectors.toList());
+        if (categoryDtos.isEmpty()) {
+            searchResponse.setMessage("No category present with search key: " + keyword);
+            return searchResponse;
+        }
+        searchResponse.setResults(categoryDtos);
+        return searchResponse;
     }
 }
