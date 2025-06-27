@@ -39,11 +39,9 @@ public class CourseController {
     private CourseService courseService;
     @Autowired
     private FileService fileService;
-
     public CourseController(CourseService courseService) {
         this.courseService = courseService;
     }
-
     @Operation(summary = "Create new Course", description = "Pass new course information to create new course", tags = {"course operation"})
     @ApiResponse(responseCode = "201", description = "Course Created Successfully")
     @ApiResponse(responseCode = "501", description = "Internal Server Error, course not created")
@@ -128,5 +126,10 @@ public class CourseController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(resourceContentType.getContentType()))
                 .body(resourceContentType.getResource());
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public List<CourseDto> getCourseOfCategory(@PathVariable String categoryId){
+       return courseService.getCoursesOfCategory(categoryId);
     }
 }

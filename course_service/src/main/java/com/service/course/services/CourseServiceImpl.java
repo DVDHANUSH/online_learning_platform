@@ -1,4 +1,5 @@
 package com.service.course.services;
+
 import com.service.course.Exceptions.ResourceNotPresentException;
 import com.service.course.config.AppConstants;
 import com.service.course.dto.CategoryDto;
@@ -7,7 +8,9 @@ import com.service.course.dto.ResourceContentType;
 import com.service.course.dto.VideoDto;
 import com.service.course.entities.Course;
 import com.service.course.repositories.CourseRepository;
+import feign.FeignException;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -31,73 +34,99 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class CourseServiceImpl implements CourseService{
+public class CourseServiceImpl implements CourseService {
     private CourseRepository courseRepository;
     private FileService fileService;
     private ModelMapper modelMapper;
     private RestTemplate restTemplate;
     private WebClient.Builder webClient;
-    public CourseServiceImpl(WebClient.Builder webClient, CourseRepository courseRepository, ModelMapper modelMapper,FileService fileService, RestTemplate restTemplate ) {
+    private final CategoryService categoryService;
+    public CourseServiceImpl(WebClient.Builder webClient, CourseRepository courseRepository, ModelMapper modelMapper, FileService fileService, RestTemplate restTemplate, CategoryService categoryService) {
         this.webClient = webClient;
         this.courseRepository = courseRepository;
         this.modelMapper = modelMapper;
         this.fileService = fileService;
         this.restTemplate = restTemplate;
+        this.categoryService = categoryService;
     }
-    @Override
+    //    @Override
+//    public CourseDto createCourse(CourseDto courseDto) {
+//        String courseId = UUID.randomUUID().toString();
+//        courseDto.setId(courseId);
+//        courseDto.setCreatedDate(new Date());
+//        Course course = modelMapper.map(courseDto, Course.class);
+//        Course savedCourse = courseRepository.save(course);
+////        String cat = courseDto.getId();
+////        categoryService.addCourseToCategory(cat, savedCourse.getId());
+//
+//        return modelMapper.map(savedCourse, CourseDto.class);
+//    }
+
     public CourseDto createCourse(CourseDto courseDto) {
+        if (courseDto.getCategoryId() == null || courseDto.getCategoryId().isBlank()) {
+            throw new IllegalArgumentException("Course must be linked to a valid category");
+        }
+        // Fetch category via Feign Client
+        try {
+            CategoryDto categoryDto = categoryService.getCategoryById(courseDto.getCategoryId());
+            if (categoryDto == null) {
+                throw new IllegalArgumentException("Category not found");
+            }
+        } catch (FeignException.NotFound ex) {
+            throw new IllegalArgumentException("Category with ID " + courseDto.getCategoryId() + " does not exist");
+        }
+
+        // Proceed with course creation
         String courseId = UUID.randomUUID().toString();
         courseDto.setId(courseId);
         courseDto.setCreatedDate(new Date());
         Course course = modelMapper.map(courseDto, Course.class);
         Course savedCourse = courseRepository.save(course);
-//        String cat = courseDto.getId();
-//        categoryService.addCourseToCategory(cat, savedCourse.getId());
-
         return modelMapper.map(savedCourse, CourseDto.class);
     }
+
     // public CourseDto updateCourse(String id, CourseDto courseDto) here, the "courseDto" will have the course Data that has to be updated
-
     @Override
-public CourseDto updateCourse(String id, CourseDto courseDto) {
-    // Fetch the existing course
-    Course course = courseRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Course Not Present"));
-    // Only update fields that are not null in the courseDto
-    if (courseDto.getTitle() != null) {
-        course.setTitle(courseDto.getTitle());
-    }
-    if (courseDto.getShortDesc() != null) {
-        course.setShortDesc(courseDto.getShortDesc());
-    }
-    if (courseDto.getLongDesc() != null) {
-        course.setLongDesc(courseDto.getLongDesc());
-    }
-    if (courseDto.getPrice() != 0.0) { // assuming 0 is not a valid value for price
-        course.setPrice(courseDto.getPrice());
-    }
-    if (courseDto.getLive() != null) { // Assuming boolean values can be modified
+    public CourseDto updateCourse(String id, CourseDto courseDto) {
+        // Fetch the existing course
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Course Not Present"));
+        // Only update fields that are not null in the courseDto
+        if (courseDto.getTitle() != null) {
+            course.setTitle(courseDto.getTitle());
+        }
+        if (courseDto.getShortDesc() != null) {
+            course.setShortDesc(courseDto.getShortDesc());
+        }
+        if (courseDto.getLongDesc() != null) {
+            course.setLongDesc(courseDto.getLongDesc());
+        }
+        if (courseDto.getPrice() != 0.0) { // assuming 0 is not a valid value for price
+            course.setPrice(courseDto.getPrice());
+        }
+        if (courseDto.getLive() != null) { // Assuming boolean values can be modified
 
-        System.out.println("not same hence updating");
-        course.setLive(courseDto.getLive());
+            System.out.println("not same hence updating");
+            course.setLive(courseDto.getLive());
+        }
+        if (courseDto.getDisc() != 0.0) {
+            course.setDisc(courseDto.getDisc());
+        }
+        if (courseDto.getBanner() != null) {
+            course.setBanner(courseDto.getBanner());
+        }
+        if (courseDto.getBannerContentType() != null) {
+            course.setBannerContentType(courseDto.getBannerContentType());
+        }
+        // Save the updated course
+        Course updatedCourse = courseRepository.save(course);
+        // Return the updated course as a DTO
+        return modelMapper.map(updatedCourse, CourseDto.class);
     }
-    if (courseDto.getDisc() != 0.0) {
-        course.setDisc(courseDto.getDisc());
-    }
-    if (courseDto.getBanner() != null) {
-        course.setBanner(courseDto.getBanner());
-    }
-    if (courseDto.getBannerContentType() != null) {
-        course.setBannerContentType(courseDto.getBannerContentType());
-    }
-    // Save the updated course
-    Course updatedCourse = courseRepository.save(course);
-    // Return the updated course as a DTO
-    return modelMapper.map(updatedCourse, CourseDto.class);
-}
+
     @Override
     public CourseDto getCourseById(String id) {
-        Course course = courseRepository.findById(id).orElseThrow(()-> new RuntimeException("Course not present"));
+        Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not present"));
         // get category detail of that particular course.
         // to get the category detail object,
 //        CategoryDto categoryDto =  restTemplate.getForObject(AppConstants.CATEGORY_SERVICE_BASE_URL+ "/categories/"+course.getCategoryId(), CategoryDto.class);
@@ -106,9 +135,10 @@ public CourseDto updateCourse(String id, CourseDto courseDto) {
         courseDto.setCategoryDto(getCategoryOfCourse(courseDto.getCategoryId()));
         // Load video services to Load videos that are associated with this course
 
-       courseDto.setVideos(getVideosAssociatedWithParticularCourse(course.getId()));
+        courseDto.setVideos(getVideosAssociatedWithParticularCourse(course.getId()));
         return courseDto;
     }
+
     @Override
     public Page<CourseDto> getAllCourses(Pageable pageable) {
         Page<Course> courses = courseRepository.findAll(pageable);
@@ -118,8 +148,7 @@ public CourseDto updateCourse(String id, CourseDto courseDto) {
                 .map(course -> modelMapper.map(course, CourseDto.class))
                 .collect(Collectors.toList());
         // it you want, create your own page response
-
-        List<CourseDto> newcourseDtos =  dtos.stream().map(courseDto -> {
+        List<CourseDto> newcourseDtos = dtos.stream().map(courseDto -> {
             // write implementation here.
 //         ResponseEntity<List<CategoryDto>> exchange = restTemplate.exchange(AppConstants.CATEGORY_SERVICE_BASE_URL + "/categories/" + courseDto.getCategoryDto(),
 //                    HttpMethod.GET, null, new ParameterizedTypeReference<List<CategoryDto>>() {
@@ -149,33 +178,39 @@ public CourseDto updateCourse(String id, CourseDto courseDto) {
 
     @Override
     public void deleteCourse(String courseId) {
-         courseRepository.deleteById(courseId);
+        courseRepository.deleteById(courseId);
     }
+
     @Override
     public List<CourseDto> searchCourses(String keyword) {
         List<Course> courses = courseRepository.findByTitleContainingIgnoreCaseOrShortDescContainingIgnoreCase(keyword, keyword);
         return courses.stream().map(course -> modelMapper.map(course, CourseDto.class)).collect(Collectors.toList());
     }
+
     @Override
     public CourseDto saveBanner(MultipartFile file, String courseId) throws IOException {
-      Course course = courseRepository.findById(courseId).orElseThrow(()-> new ResourceNotPresentException());
-      String filePath = fileService.save(file, AppConstants.COURSE_BANNER_UPLOAD_DIR, file.getOriginalFilename());
-       // String relativeFilePath = filePath.substring(filePath.indexOf(AppConstants.COURSE_BANNER_UPLOAD_DIR));
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotPresentException());
+        String filePath = fileService.save(file, AppConstants.COURSE_BANNER_UPLOAD_DIR, file.getOriginalFilename());
+        // String relativeFilePath = filePath.substring(filePath.indexOf(AppConstants.COURSE_BANNER_UPLOAD_DIR));
         course.setBanner(filePath);
         System.out.println("Full File Path: " + filePath);
         System.out.println("Expected Directory: " + AppConstants.COURSE_BANNER_UPLOAD_DIR);
         course.setBannerContentType(file.getContentType());
-      return modelMapper.map(courseRepository.save(course), CourseDto.class);
+        return modelMapper.map(courseRepository.save(course), CourseDto.class);
     }
-    public CourseDto entityToDto(Course course){
-     CourseDto courseDto = modelMapper.map(course, CourseDto.class);
-     return courseDto;
+
+    public CourseDto entityToDto(Course course) {
+        CourseDto courseDto = modelMapper.map(course, CourseDto.class);
+        return courseDto;
     }
-    public Course dtoToEntity(CourseDto dto){
-      Course course =  modelMapper.map(dto, Course.class);
-      return course;
+
+    public Course dtoToEntity(CourseDto dto) {
+        Course course = modelMapper.map(dto, Course.class);
+        return course;
 
     }
+
+
     @Override
     public ResourceContentType getCourseBannerById(String courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotPresentException());
@@ -189,23 +224,28 @@ public CourseDto updateCourse(String id, CourseDto courseDto) {
         resourceContentType.setContentType(course.getBannerContentType());
         return resourceContentType;
     }
-    public CategoryDto getCategoryOfCourse(String categoryId){
+
+    @Override
+    public List<CourseDto> getCoursesOfCategory(String categoryId) {
+        return this.courseRepository.findByCategoryId(categoryId).stream().map(course-> modelMapper.map(course, CourseDto.class)).collect(Collectors.toList());
+    }
+    public CategoryDto getCategoryOfCourse(String categoryId) {
         try {
-            ResponseEntity<CategoryDto> exchange = restTemplate.exchange(AppConstants.CATEGORY_SERVICE_BASE_URL+"/categories/"+ categoryId, org.springframework.http.HttpMethod.GET, null, CategoryDto.class);
+            ResponseEntity<CategoryDto> exchange = restTemplate.exchange(AppConstants.CATEGORY_SERVICE_BASE_URL + "/categories/" + categoryId, org.springframework.http.HttpMethod.GET, null, CategoryDto.class);
             return exchange.getBody();
-        }
-        catch (HttpClientErrorException ex){
+        } catch (HttpClientErrorException ex) {
             ex.printStackTrace();
             return null;
         }
     }
-    public List<VideoDto> getVideosAssociatedWithParticularCourse(String courseId){
+    public List<VideoDto> getVideosAssociatedWithParticularCourse(String courseId) {
         return webClient.build()
                 .get()
-                .uri(AppConstants.VIDEO_SERVICE_BASE_URL+"/videos/course/{id}", courseId)
+                .uri(AppConstants.VIDEO_SERVICE_BASE_URL + "/videos/course/{id}", courseId)
                 .retrieve()
                 .bodyToFlux(VideoDto.class)
                 .collect(Collectors.toList())
                 .block();
     }
+
 }

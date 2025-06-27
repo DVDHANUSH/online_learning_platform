@@ -16,4 +16,6 @@ public interface CourseService {
   List<CourseDto> searchCourses (String titleKeyword);
   public CourseDto saveBanner(MultipartFile file, String courseId) throws IOException;
   ResourceContentType getCourseBannerById(String courseId);
+  List<CourseDto> getCoursesOfCategory(String categoryId);
+
 }

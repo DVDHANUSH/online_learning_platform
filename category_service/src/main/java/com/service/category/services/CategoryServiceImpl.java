@@ -12,10 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,15 +24,20 @@ public class CategoryServiceImpl implements CategoryService{
         this.modelMapper = modelMapper;
         this.categoryRepository = categoryRepository;
     }
+
     @Override
     public CategoryDto insert(CategoryDto categoryDto) {
+        // Check for duplicate by title
+        Optional<Category> existing = categoryRepository.findByTitleIgnoreCase(categoryDto.getTitle());
+        if (existing.isPresent()) {
+            throw new IllegalArgumentException("Category with title '" + categoryDto.getTitle() + "' already exists.");
+        }
+
 
         // create categoryId
         String catId = UUID.randomUUID().toString();
         categoryDto.setId(catId);
         categoryDto.setAddedDate(new Date());
-        // convert DTO to entity
-        System.out.println("The dto : "+categoryDto);
         Category category = modelMapper.map(categoryDto, Category.class);
         Category savedCat = categoryRepository.save(category);
         return modelMapper.map(savedCat, CategoryDto.class);

@@ -16,22 +16,21 @@ import java.util.List;
 @RequestMapping("/api/v1/categories")
 
 public class CategoryController {
-    private CategoryService categoryService;
 
+
+    private CategoryService categoryService;
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
-
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody CategoryDto categoryDto
-    ) {
-        // we will create a validation that will work for the entire application
-        CategoryDto createdDto = categoryService.insert(categoryDto);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(createdDto);
+    public ResponseEntity<?> create(@Valid @RequestBody CategoryDto categoryDto) {
+        try {
+            CategoryDto createdDto = categoryService.insert(categoryDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdDto);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        }
     }
-
     @GetMapping
     public CustomPageResponse<CategoryDto> getAll(@RequestParam(value = "pageNumber", required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int pageNumber,
                                                   @RequestParam(value = "pageSize", required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int pageSize,

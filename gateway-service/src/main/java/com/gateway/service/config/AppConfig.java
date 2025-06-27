@@ -55,7 +55,7 @@ public class AppConfig {
 //                                )
                          //        we have to turn off the video service before checking the retry pattern.
                         )
-                        .uri("lb://video-service")
+                        .uri("lb://VIDEO-SERVICE")
                 )
 
 

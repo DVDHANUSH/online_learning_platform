@@ -11,6 +11,8 @@ public interface CourseRepository extends JpaRepository<Course, String> {
    List<Course> findByLive(boolean live);
 
     Page<Course> findAll(Pageable pageable);
+    List<Course> findByCategoryId(String categoryId);
+
     // search the course by price
 //    @Query("select c from course where)
 //    List<Course> findByCategoryId(String categoryId);
