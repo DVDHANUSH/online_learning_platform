@@ -109,7 +109,9 @@ public class CourseController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(customMessage);
         }
         //fileService.save(banner, AppConstants.COURSE_BANNER_UPLOAD_DIR, banner.getOriginalFilename());
-        CourseDto courseDto = courseService.saveBanner(banner, courseId);
+       // CourseDto courseDto =  courseService.saveBanner(banner, courseId);
+
+         CourseDto courseDto =  new CourseDto();
         return ResponseEntity.ok(courseDto);
     }
 

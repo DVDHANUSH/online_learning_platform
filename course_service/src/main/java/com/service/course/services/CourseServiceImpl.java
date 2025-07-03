@@ -187,17 +187,17 @@ public class CourseServiceImpl implements CourseService {
         return courses.stream().map(course -> modelMapper.map(course, CourseDto.class)).collect(Collectors.toList());
     }
 
-    @Override
-    public CourseDto saveBanner(MultipartFile file, String courseId) throws IOException {
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotPresentException());
-        String filePath = fileService.save(file, AppConstants.COURSE_BANNER_UPLOAD_DIR, file.getOriginalFilename());
-        // String relativeFilePath = filePath.substring(filePath.indexOf(AppConstants.COURSE_BANNER_UPLOAD_DIR));
-        course.setBanner(filePath);
-        System.out.println("Full File Path: " + filePath);
-        System.out.println("Expected Directory: " + AppConstants.COURSE_BANNER_UPLOAD_DIR);
-        course.setBannerContentType(file.getContentType());
-        return modelMapper.map(courseRepository.save(course), CourseDto.class);
-    }
+//    @Override
+//    public CourseDto saveBanner(MultipartFile file, String courseId) throws IOException {
+//        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotPresentException());
+//        String filePath = fileService.save(file, AppConstants.COURSE_BANNER_UPLOAD_DIR, file.getOriginalFilename());
+//        // String relativeFilePath = filePath.substring(filePath.indexOf(AppConstants.COURSE_BANNER_UPLOAD_DIR));
+//        course.setBanner(filePath);
+//        System.out.println("Full File Path: " + filePath);
+//        System.out.println("Expected Directory: " + AppConstants.COURSE_BANNER_UPLOAD_DIR);
+//        course.setBannerContentType(file.getContentType());
+//        return modelMapper.map(courseRepository.save(course), CourseDto.class);
+//    }
 
     public CourseDto entityToDto(Course course) {
         CourseDto courseDto = modelMapper.map(course, CourseDto.class);

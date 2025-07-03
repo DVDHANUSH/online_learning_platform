@@ -1,12 +1,11 @@
 package com.service.video.repositories;
-
 import com.service.video.documents.Video;
-import com.service.video.dto.VideoDto;
-import org.springframework.data.mongodb.repository.MongoRepository;
-
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+//import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
-
-public interface VideoRepo extends MongoRepository<Video, String> {
+@Repository
+public interface VideoRepo extends JpaRepository<Video, String> {
     List<Video> findByTitleContainingIgnoreCaseOrDescContainingIgnoreCase(String keyword, String desc);
     List<Video> findByCourseId(String courseId);
 }
